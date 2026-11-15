@@ -35,9 +35,6 @@ A portable Hyprland desktop configuration.
 - PipeWire + WirePlumber
 - PipeWire PulseAudio compatibility (`paplay`)
 - elogind or systemd-logind
-
-## Optional integrations
-
 - Viewnior — screenshot previews
 - NetworkManager — network management (`nmtui`)
 - BlueZ — Bluetooth management (`bluetoothctl`)
