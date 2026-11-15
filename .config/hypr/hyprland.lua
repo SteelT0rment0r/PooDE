@@ -382,7 +382,7 @@ disable_hyprland_logo = true,
 
 hl.config({
 input = {
-kb_layout  = "tr",
+kb_layout  = "us",
 kb_variant = "",
 kb_model   = "",
 kb_options = "",
