@@ -70,6 +70,28 @@ cp -a wallpapers/. ~/Pictures/Wallpapers/
 
 Install ScrollOverview using its installation instructions, then reload its plugins:
 
+### ScrollOverview installation
+
+PooDE uses [ScrollOverview](https://github.com/yayuuu/hyprland-scroll-overview) for its workspace overview.
+
+Install it using Hyprland's plugin manager:
+
+```sh
+hyprpm add https://github.com/yayuuu/hyprland-scroll-overview.git
+hyprpm update
+hyprpm enable scrolloverview
+```
+
+If you're using a Git build of Hyprland, use the `new-release` branch instead:
+
+```sh
+hyprpm add https://github.com/yayuuu/hyprland-scroll-overview origin/new-release
+hyprpm update
+hyprpm enable scrolloverview
+```
+
+PooDE automatically runs `hyprpm reload` when Hyprland starts.
+
 ```sh
 hyprpm reload
 ```
