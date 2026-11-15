@@ -1,0 +1,196 @@
+@import "../../.cache/wal/colors-waybar.css";
+
+/* ---------- Fonts ---------- */
+
+* {
+    font-family: "DejaVu Sans Mono";
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* ---------- Waybar ---------- */
+
+window#waybar {
+    background: transparent;
+    color: @foreground;
+    border: none;
+    box-shadow: none;
+}
+
+window#waybar > box {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+/* ---------- Three floating pills ---------- */
+
+.modules-left,
+.modules-center,
+.modules-right {
+    background: @background;
+    color: @foreground;
+    border: 2px solid @cyan;
+    border-radius: 12px;
+    padding: 0 6px;
+    margin: 0 10px;
+}
+
+/* ---------- Workspaces ---------- */
+
+#workspaces {
+    background: transparent;
+    padding: 0;
+}
+
+#workspaces button {
+    background: transparent;
+    background-image: none;
+    color: @foreground;
+    border: none;
+    box-shadow: none;
+    padding: 0 6px;
+    margin: 0 2px;
+}
+
+#workspaces button.active,
+#workspaces button.focused {
+    background: @cyan;
+    color: @background;
+    border: none;
+    border-radius: 8px;
+}
+
+#workspaces button:hover {
+    background: transparent;
+    color: @cyan;
+    border: none;
+}
+
+#workspaces button.urgent {
+    background: @red;
+    color: @background;
+}
+
+/* ---------- Tray ---------- */
+
+#tray {
+    background: transparent;
+    padding: 0 6px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
+
+/* ---------- Clock ---------- */
+
+#clock {
+    background: transparent;
+    color: @foreground;
+    padding: 0 8px;
+}
+
+/* ---------- Volume ---------- */
+
+#pulseaudio {
+    background: transparent;
+    color: @foreground;
+    padding: 0 6px;
+}
+
+#pulseaudio.muted {
+    color: @red;
+}
+
+/* ---------- Volume slider ---------- */
+
+#pulseaudio-slider {
+    background: transparent;
+    border: none;
+    padding: 0 6px;
+    min-width: 90px;
+}
+
+#pulseaudio-slider trough {
+    min-width: 90px;
+    min-height: 5px;
+    border-radius: 14px;
+    background: @background;
+}
+
+#pulseaudio-slider highlight {
+    min-height: 5px;
+    border-radius: 14px;
+    background: @cyan;
+}
+
+#pulseaudio-slider slider {
+    min-width: 9px;
+    min-height: 9px;
+    margin: -2px;
+    border-radius: 50%;
+    background: @foreground;
+    border: none;
+    box-shadow: none;
+}
+
+/* ---------- Brightness ---------- */
+
+#backlight {
+    background: transparent;
+    color: @foreground;
+    padding: 0 6px;
+}
+
+/* ---------- Bluetooth ---------- */
+
+#bluetooth {
+    background: transparent;
+    color: @foreground;
+    padding: 0 6px;
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+    color: @red;
+}
+
+/* ---------- Network ---------- */
+
+#network {
+    background: transparent;
+    color: @foreground;
+    padding: 0 6px;
+}
+
+#network.disconnected,
+#network.disabled {
+    color: @red;
+}
+
+/* ---------- Battery ---------- */
+
+#battery {
+    background: transparent;
+    color: @foreground;
+    padding: 0 6px;
+}
+
+#battery.critical:not(.charging) {
+    color: @red;
+}
+
+/* ---------- Common ---------- */
+
+#mode,
+#window,
+#mpd,
+#custom-themes {
+    background: transparent;
+    color: @foreground;
+}

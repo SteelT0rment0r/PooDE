@@ -1,0 +1,26 @@
+
+#!/bin/sh
+
+current=$(powerprofilesctl get)
+
+case "$current" in
+    performance) prompt="󰓅 Performance" ;;
+    balanced) prompt="⚖ Balanced" ;;
+    power-saver) prompt="󰌪 Power Saver" ;;
+    *) prompt="Unknown" ;;
+esac
+
+choice=$(printf '%s\n' \
+    '<span font_desc="Maple Mono NF 17">󰓅</span>' \
+    '<span font_desc="Maple Mono NF 17">⚖</span>' \
+    '<span font_desc="Maple Mono NF 17">󰌪</span>' |
+    rofi -dmenu -markup-rows \
+        -p "Power Profile • $prompt" \
+        -theme ~/.config/hypr/rofi/powerprofile.rasi)
+
+case "$choice" in
+    *󰓅*) powerprofilesctl set performance ;;
+    *⚖*) powerprofilesctl set balanced ;;
+    *󰌪*) powerprofilesctl set power-saver ;;
+esac
+

@@ -1,0 +1,5 @@
+[config]
+
+[templates.accents]
+input_path = "~/.config/matugen/desktop-templates/accents.json"
+output_path = "~/.cache/desktop-theme/accents.json"

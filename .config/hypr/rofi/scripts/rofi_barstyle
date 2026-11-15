@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+# Rofi switcher for the Waybar layout (replaces the blind SUPER+SHIFT+B
+# cycle). Selection writes ~/.local/state/waybar-mode and relaunches the
+# bar through toggle-waybar.sh, the same path login and wallpaper changes
+# use. Picking the layout that is already active is a no-op.
+
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/waybar-mode"
+RASI="$HOME/.config/hypr/rofi/barstyle.rasi"
+TOGGLE="$HOME/.config/hypr/scripts/toggle-waybar.sh"
+
+prompt='Bar layout'
+
+current="floating"
+if [ -f "$STATE" ]; then
+    read -r current < "$STATE" || true
+fi
+case "$current" in
+    floating|island|circular) ;;
+    *) current="floating" ;;
+esac
+
+# Same order as the cycle in toggle-waybar.sh; filled circles mark the
+# active layout (no colours, so the rows stay matugen-agnostic).
+declare -a modes=(floating island circular)
+declare -a labels=()
+current_row=0
+for i in "${!modes[@]}"; do
+    mode="${modes[$i]}"
+    if [ "$mode" = "$current" ]; then
+        labels+=("●  ${mode^}")
+        current_row="$i"
+    else
+        labels+=("○  ${mode^}")
+    fi
+done
+
+choice=$(printf '%s\n' "${labels[@]}" |
+    rofi -dmenu \
+        -p "$prompt" \
+        -mesg "Current :: $current" \
+        -selected-row "$current_row" \
+        -markup-rows \
+        -no-custom \
+        -format i \
+        -theme "$RASI")
+
+case "$choice" in
+    ''|*[!0-9]*) exit 0 ;;
+esac
+choice=$((choice))
+
+mode="${modes[$choice]}"
+[ -z "$mode" ] && exit 0
+[ "$mode" = "$current" ] && exit 0
+
+mkdir -p "$(dirname "$STATE")"
+echo "$mode" > "$STATE"
+exec "$TOGGLE" restart

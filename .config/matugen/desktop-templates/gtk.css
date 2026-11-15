@@ -1,0 +1,14 @@
+/* Matugen accent for GTK4/libadwaita apps (Nautilus), rendered to
+   ~/.config/gtk-4.0/matugen-gtk.css on every wallpaper change.
+
+   adw-gtk3's stylesheet defines its accents as :root variables and
+   consumes them with var() at runtime, so a later :root block
+   overrides them without touching the theme. The M3 primary/on_primary
+   pair already follows the colour mode (matugen -m), so no
+   is_dark_mode branch is needed here: light mode gets a darker accent
+   with light text, dark mode the reverse. */
+
+:root {
+    --accent-bg-color: {{colors.primary.default.hex}};
+    --accent-color: {{colors.on_primary.default.hex}};
+}

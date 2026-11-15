@@ -1,0 +1,40 @@
+{
+    "accents": {
+        "primary": {
+            "color": "{{colors.primary.default.hex}}"
+        },
+        "secondary": {
+            "color": "{{colors.secondary.default.hex}}"
+        },
+        "tertiary": {
+            "color": "{{colors.tertiary.default.hex}}"
+        },
+        "primaryContainer": {
+            "color": "{{colors.primary_container.default.hex}}"
+        },
+        "secondaryContainer": {
+            "color": "{{colors.secondary_container.default.hex}}"
+        },
+        "tertiaryContainer": {
+            "color": "{{colors.tertiary_container.default.hex}}"
+        },
+        "primaryFixed": {
+            "color": "{{colors.primary_fixed.default.hex}}"
+        },
+        "secondaryFixed": {
+            "color": "{{colors.secondary_fixed.default.hex}}"
+        },
+        "tertiaryFixed": {
+            "color": "{{colors.tertiary_fixed.default.hex}}"
+        },
+        "primaryFixedDim": {
+            "color": "{{colors.primary_fixed_dim.default.hex}}"
+        },
+        "secondaryFixedDim": {
+            "color": "{{colors.secondary_fixed_dim.default.hex}}"
+        },
+        "tertiaryFixedDim": {
+            "color": "{{colors.tertiary_fixed_dim.default.hex}}"
+        }
+    }
+}

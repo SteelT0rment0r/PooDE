@@ -1,0 +1,133 @@
+/*****----- Rofi Wallpaper Picker -----*****/
+/* Matugen-themed thumbnail grid */
+@import "~/.cache/desktop-theme/colors.rasi"
+
+configuration {
+    show-icons: true;
+
+    /* Left/Right can't cycle the grid: rofi falls back from the text-cursor
+       keys to column navigation, which clamps at the edges (ignores cycle).
+       Unbound so only Up/Down and the wheel navigate — those two wrap. */
+    kb-move-char-back:    "Control+b";
+    kb-move-char-forward: "Control+f";
+}
+
+* {
+    font: "Maple Mono NF 11";
+}
+
+
+/*****----- Floating box -----*****/
+window {
+    transparency:     "real";
+    location:         center;
+    anchor:           center;
+    fullscreen:       false;
+    width:            1180px;
+
+    border:           0px;
+    border-color:     @selected;
+    border-radius: 32px;
+
+    background-color: @background;
+    cursor:           "default";
+}
+
+mainbox {
+    children: [ "inputbar", "listview", "message" ];
+    padding:  20px;
+    spacing:  18px;
+    background-color: transparent;
+}
+
+/*****----- Input / title bar -----*****/
+inputbar {
+    children:         [ "textbox-prompt-colon", "entry" ];
+    spacing:          14px;
+    padding:          0px 0px 6px 0px;
+    background-color: transparent;
+    text-color:       @foreground;
+}
+
+textbox-prompt-colon {
+    expand:           false;
+    str:              "  Wallpaper";
+    padding:          12px 22px;
+    border-radius: 32px;
+    background-color: @background-alt;
+    text-color:       @neon-blue;
+    vertical-align:   0.5;
+}
+
+entry {
+    padding:          12px 22px;
+    border-radius: 32px;
+    background-color: @background;
+    text-color:       @neon-blue;
+    cursor:           text;
+    placeholder:      "Search…";
+    placeholder-color: @muted;
+    vertical-align:   0.5;
+}
+
+/*****----- Thumbnail grid -----*****/
+listview {
+    columns:       3;
+    lines:         1;
+    spacing:       18px;
+    cycle:         true;
+    dynamic: true;
+    scrollbar:     false;
+    fixed-columns: true;
+    fixed-height: false;
+    background-color: transparent;
+    border-radius: 1px;
+}
+
+/*****----- Tile -----*****/
+element {
+    orientation:      vertical;
+    padding:          10px;
+    spacing:          8px;
+    border-radius: 32px;
+    background-color: @background;
+    cursor:           pointer;
+}
+
+element-icon {
+    size:             248px;
+    border-radius: 32px;
+    cursor:           inherit;
+    background-color: transparent;
+}
+
+element-text {
+    horizontal-align: 0.5;
+    vertical-align:   0.5;
+    text-color:       @foreground;
+    cursor:           inherit;
+    background-color: transparent;
+}
+
+element selected {
+    background-color: @selected;
+    background-image: linear-gradient(to right, #90B2CE, #8BAFCD, #86ADCD, #81AACC, #7CA8CB, #77A5CA, #72A3CA);
+    border:           3px solid;
+    border-color:     @selected;
+    text-color:       @foreground;
+}
+
+/*****----- Bottom hint bar -----*****/
+message {
+    text-color:       @neon-blue;
+    background-color: transparent;
+}
+
+textbox {
+    padding:          12px 22px;
+    border-radius: 32px;
+    background-color: @background;
+    text-color:       @neon-blue;
+    horizontal-align: 0.5;
+    vertical-align:   0.5;
+}

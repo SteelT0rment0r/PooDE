@@ -1,0 +1,50 @@
+[config]
+import_json_files = ["~/.cache/desktop-theme/accents.json"]
+
+[templates.palette]
+input_path = "~/.config/matugen/desktop-templates/colors.json"
+output_path = "~/.cache/desktop-theme/colors.json"
+
+[templates.waybar]
+input_path = "~/.config/matugen/desktop-templates/waybar.css"
+output_path = "~/.cache/desktop-theme/colors-waybar.css"
+
+[templates.rofi]
+input_path = "~/.config/matugen/desktop-templates/rofi.rasi"
+output_path = "~/.cache/desktop-theme/colors.rasi"
+
+# dunst has no include; hypr/scripts/apply-dunst-colors patches these
+# values into ~/.config/dunst/dunstrc (the focus-mode toggle rewrites
+# other lines of that file, so it is never regenerated wholesale).
+[templates.dunst]
+input_path = "~/.config/matugen/desktop-templates/dunst.conf"
+output_path = "~/.cache/desktop-theme/dunst-colors.conf"
+
+[templates.kitty]
+input_path = "~/.config/matugen/desktop-templates/kitty-colors.conf"
+output_path = "~/.cache/desktop-theme/colors-kitty.conf"
+
+[templates.fish]
+input_path = "~/.config/matugen/desktop-templates/fish-colors.fish"
+output_path = "~/.cache/desktop-theme/fish-colors.fish"
+
+[templates.cava]
+input_path = "~/.config/matugen/desktop-templates/cava"
+output_path = "~/.config/cava/config"
+
+[templates.rmpc]
+input_path = "~/.config/matugen/desktop-templates/rmpc.ron"
+output_path = "~/.config/rmpc/themes/matugen.ron"
+
+[templates.yazi]
+input_path = "~/.config/matugen/desktop-templates/yazi.toml"
+output_path = "~/.config/yazi/theme.toml"
+
+# btop uses a dedicated Matugen theme output.
+[templates.btop]
+input_path = "~/.config/matugen/desktop-templates/btop.theme"
+output_path = "~/.config/btop/themes/matugen.theme"
+
+[templates.gtk]
+input_path = "~/.config/matugen/desktop-templates/gtk.css"
+output_path = "~/.config/gtk-4.0/matugen-gtk.css"

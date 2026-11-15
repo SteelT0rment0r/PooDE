@@ -1,0 +1,205 @@
+// Waybar modules configuration -----------------------------
+
+{
+	// waybar-backlight
+    "backlight": {
+		"interval": 2,
+		"align": 0,
+		"rotate": 0,
+        //"device": "amdgpu_bl0",
+        "format": "{icon} {percent}%",
+        "format-icons": ["", "", "", ""],
+        "on-click": "",
+        "on-click-middle": "",
+        "on-click-right": "",
+        "on-update": "",
+        //"on-scroll-up": "light -A 10%",
+        //"on-scroll-down": "light -U 10%",
+        "smooth-scrolling-threshold": 1,
+    },
+
+    // waybar-battery
+"battery": {
+    "interval": 60,
+    "align": 0,
+    "rotate": 0,
+    //"bat": "BAT1",
+    //"adapter": "ACAD",
+    "full-at": 100,
+    "design-capacity": false,
+    "states": {
+        "good": 95,
+        "warning": 30,
+        "critical": 15
+    },
+    "format": "{icon}",
+    "format-charging": "",
+    "format-plugged": "",
+    "format-full": "{icon}",
+    "format-alt": "{icon}",
+    "format-icons": ["", "", "", "", ""],
+    "format-time": "{H}h {M}min",
+    "tooltip": true,
+    "tooltip-format": "{capacity}%",
+    "on-click": "~/.config/hypr/rofi/scripts/rofi_powerprofile"
+},
+
+	// waybar-bluetooth
+    "bluetooth": {
+        //"controller": "controller1",
+        //"format-device-preference": "",
+        "format": "",
+        "format-on": "",
+        "format-off": "",
+        "format-disabled": "",
+        "format-connected": "",
+        "format-connected-battery": "",
+        "tooltip": true,
+        "tooltip-format": "{controller_alias}\t{controller_address}",
+        "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+        "on-click": "kitty -e bluetoothctl",
+        "on-click-right": "blueman-manager",
+    },
+
+	// waybar-clock
+    "clock": {
+		"format": "{:%H:%M}",
+		"interval": 60,
+		"align": 0,
+		"rotate": 0,
+        "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>", 
+        "format-alt": " {:%a %b %d, %G}"
+    },
+
+	// waybar-custom
+
+    
+	// waybar-idle-inhibitor
+    "idle_inhibitor": {
+         "format": "{icon}",
+         "format-icons": {
+             "activated": "",
+             "deactivated": ""
+         },
+         "timeout": 30
+    },
+
+	// waybar-spotify
+
+ 
+	// waybar-network
+    "network": {
+		"interval": 5,
+        //"interface": "wlan*", // (Optional) To force the use of this interface, set it for netspeed to work
+        "format-wifi": "",
+        "format-ethernet": "",
+        "format-linked": "",
+        "format-disconnected": "睊",
+        "format-disabled": "睊", 
+        "tooltip-format": " {ifname}",
+        "on-click": "kitty -e nmtui",
+    },
+
+	// waybar-pulseaudio
+    "pulseaudio": {
+        "rotate": 0,
+        //"format": "{volume}% {icon} {format_source}",
+        "format": "{icon} {volume}%",
+        "format-muted": " Mute",
+        "format-bluetooth": " {volume}%",
+        "format-bluetooth-muted": " Mute",
+        "format-source": " {volume}%",
+        "format-source-muted": " Mute",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""],
+            "on-click": "pavucontrol &",
+        },
+        "scroll-step": 5.0,
+        "on-click": "pulsemixer --toggle-mute",
+        "on-click-right": "pulsemixer --toggle-mute",
+        "smooth-scrolling-threshold": 1,
+    },
+
+// waybar-pulseaudio-slider
+"pulseaudio/slider": {
+    "min": 0,
+    "max": 100,
+    "orientation": "horizontal",
+    "target": "sink",
+    "zero-on-mute": true,
+    "unmute-on-volume-change": true
+},
+
+
+  // waybar-hyprland-workspaces
+"hyprland/workspaces": {
+    "all-outputs": true,
+    "format": "{icon}",
+    "format-icons": {
+        "1": "1",
+        "2": "2",
+        "3": "3",
+        "4": "4",
+        "5": "5",
+        "6": "6",
+        "7": "7",
+        "8": "8",
+        "active": "●",
+        "default": "○"
+    },
+    "persistent-workspaces": {
+        "*": [1, 2, 3, 4, 5, 6, 7, 8]
+    }
+},
+	
+// waybar-tray
+    
+    "custom/arch": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "rofi -show drun -theme ~/.config/hypr/rofi/launcher.rasi"
+    },
+    "custom/power": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "~/.config/hypr/rofi/scripts/rofi_powermenu"
+    },
+// MEDIA MODULES
+"tray": {
+        "icon-size": 16,
+        "spacing": 10
+    }
+}
+    "group/left": {
+        "orientation": "horizontal",
+        "modules": [
+            "hyprland/workspaces",
+            "tray"
+        ]
+    },
+
+    "group/clock": {
+        "orientation": "horizontal",
+        "modules": [
+            "clock"
+        ]
+    },
+
+    "group/right": {
+        "orientation": "horizontal",
+        "modules": [
+            "pulseaudio/slider",
+            "pulseaudio",
+            "backlight",
+            "bluetooth",
+            "network",
+            "battery"
+        ]
+    }

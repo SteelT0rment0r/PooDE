@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+DIR="$HOME/.config/hypr"
+RASI="$HOME/.config/hypr/rofi/powermenu.rasi"
+CNFR="$HOME/.config/hypr/rofi/confirm.rasi"
+
+prompt="$(hostname) (${DESKTOP_SESSION:-hyprland})"
+mesg="$(uptime -p | sed 's/^up //')"
+
+option_1='<span font_desc="Maple Mono NF 17">󰌾</span>'
+option_2='<span font_desc="Maple Mono NF 17">󰍃</span>'
+option_3='<span font_desc="Maple Mono NF 17">󰜉</span>'
+option_4='<span font_desc="Maple Mono NF 17">󰐥</span>'
+
+yes='<span font_desc="Maple Mono NF 16">󰄬</span>'
+no='<span font_desc="Maple Mono NF 16">󰅖</span>'
+
+rofi_cmd() {
+    rofi -dmenu \
+        -p "$prompt" \
+        -mesg "$mesg" \
+        -markup-rows \
+        -theme "$RASI"
+}
+
+run_rofi() {
+    printf '%s\n' \
+        "$option_1" \
+        "$option_2" \
+        "$option_3" \
+        "$option_4" |
+        rofi_cmd
+}
+
+confirm_cmd() {
+    rofi -dmenu \
+        -markup-rows \
+        -p 'Confirmation' \
+        -mesg 'Are you sure?' \
+        -selected-row 1 \
+        -no-click-to-exit \
+        -theme "$CNFR"
+}
+
+confirm_exit() {
+    [[ "$(printf '%s\n' "$yes" "$no" | confirm_cmd)" == "$yes" ]]
+}
+
+run_cmd() {
+    case "$1" in
+        1) "$DIR/scripts/current_lock" ;;
+        2) hyprctl eval 'hl.dispatch(hl.dsp.exit())' ;;
+        3) loginctl reboot ;;
+        4) loginctl poweroff ;;
+    esac
+}
+
+chosen="$(run_rofi)"
+
+case "$chosen" in
+    "$option_1") confirm_exit && run_cmd 1 ;;
+    "$option_2") confirm_exit && run_cmd 2 ;;
+    "$option_3") confirm_exit && run_cmd 3 ;;
+    "$option_4") confirm_exit && run_cmd 4 ;;
+esac
+

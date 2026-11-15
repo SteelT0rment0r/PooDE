@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Rofi clipboard-history picker backed by cliphist. The watcher
+# (scripts/clipboard-watcher) records every clipboard change; this menu
+# lists the history and copies the picked entry back to the clipboard.
+# Delete removes the highlighted entry from the history and reopens the
+# menu. Rofi hands back the raw "id<TAB>preview" line, which is exactly
+# what cliphist decode/delete read from stdin.
+#
+# An empty history needs care: rofi -dmenu with -no-custom exits
+# immediately on an empty list, so the menu would flash and vanish.
+# An empty history is shown as a placeholder row instead; Enter/Delete
+# on it are no-ops.
+
+RASI="$HOME/.config/hypr/rofi/clipboard.rasi"
+
+EMPTY="clipboard history is empty"
+
+list="$(cliphist list)"
+[ -n "$list" ] || list="$EMPTY"
+
+choice="$(printf '%s\n' "$list" | rofi -dmenu \
+    -theme "$RASI" \
+    -p "Clipboard" \
+    -no-custom \
+    -kb-custom-3 "Delete" \
+    -kb-custom-4 "Control+Shift+Delete" \
+    -kb-remove-char-forward "Control+d")"
+
+exit_code=$?
+
+case "$exit_code" in
+    0)
+        # The placeholder row has no cliphist id to decode.
+        [ "$choice" = "$EMPTY" ] && exit 0
+        # decode restores the stored bytes; wl-copy sniffs whether that
+        # is plain text or an image.
+        [ -n "$choice" ] && printf '%s\n' "$choice" | cliphist decode | wl-copy
+        ;;
+    12)
+        # Delete key (custom-3): drop the entry, then reopen the menu.
+        [ -n "$choice" ] && [ "$choice" != "$EMPTY" ] || exit 0
+        printf '%s\n' "$choice" | cliphist delete
+        exec "$0"
+        ;;
+
+    13)
+        # Shift+Delete: clear the entire clipboard history.
+        cliphist wipe
+        exec "$0"
+        ;;
+esac
+
+exit 0

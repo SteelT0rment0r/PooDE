@@ -1,0 +1,73 @@
+/**
+ * Copyright (C) 2020-2026 Aditya Shakya <adi1090x@gmail.com>
+ **/
+
+/*****----- Global Properties -----*****/
+@import                          "~/.cache/desktop-theme/colors.rasi"
+@import                          "shared/fonts.rasi"
+
+/*****----- Main Window -----*****/
+window {
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       350px;
+    x-offset:                    0px;
+    y-offset:                    0px;
+    margin:                      0px;
+    padding:                     30px;
+    border: 0px solid;
+    border-radius: 32px;
+    border-color:                @selected;
+    background-color:            @background;
+    cursor:                      "default";
+    children:                    [ "inputbar", "listview" ];
+}
+
+/*****----- Inputbar -----*****/
+inputbar {
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px;
+    border-radius: 32px;
+    border-color:                #8E94AB;
+    background-color:            transparent;
+    text-color:                  @foreground;
+    children:                    [ "textbox-prompt-colon", "prompt", "entry" ];
+}
+
+textbox-prompt-colon {
+    background-color:            @background-alt;
+    enabled:                     true;
+    expand:                      false;
+    str:                         "";
+    padding:                     10px 12px;
+    border-radius: 32px;
+    text-color:                  @neon-cyan;
+}
+prompt {
+    background-color:            @background-alt;
+    enabled:                     true;
+    padding:                     10px 12px;
+    border-radius: 32px;
+    text-color:                  @neon-cyan;
+}
+entry {
+    enabled:                     true;
+    padding:                     10px 12px;
+    border:                      0px 0px 0px 0px;
+    border-radius: 32px;
+    border-color:                #8E94AB;
+    background-color:            @background-alt;
+    text-color:                  @neon-cyan;
+    cursor:                      text;
+    placeholder:                 "Password";
+    placeholder-color:           inherit;
+}
+
+/*****----- Listview -----*****/
+listview {
+    enabled:                     false;
+}

@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+
+"""Give the selected matugen scheme its own colour character.
+
+matugen's -t variants are not equally distinct: scheme-smart renders
+byte-identical to scheme-tonal-spot, scheme-content only differs from
+scheme-fidelity in the tertiary family, and rainbow/vibrant keep the
+same accent hues as tonal-spot. Switching between those presets used to
+feel like an accent-colour swap.
+
+This rewrites the generated palette files with a per-scheme hue
+rotation and saturation scale, so every preset shifts the whole theme
+-- surfaces, terminal palette, dunst, borders -- instead of only a few
+slots. Lightness is never touched, so contrast and readability stay
+exactly as the templates designed them.
+
+Colour values that come from the wallpaper accents (accents.json) are
+left alone: they are the anchor that keeps gradients and selected rows
+tied to the wallpaper whichever scheme is active.
+
+Safe by construction:
+- matugen re-renders every output file from its templates right before
+  this runs, so the input is always pristine (no double rotation).
+- monochrome has zero saturation, so rotation is a mathematical no-op
+  and its black-grey-white identity cannot be broken.
+- unknown/missing scheme state falls back to tonal-spot (no transform).
+"""
+
+import colorsys
+import json
+import re
+import sys
+from pathlib import Path
+
+HOME = Path.home()
+CONFIG = HOME / ".config/matugen/config.toml"
+STATE = HOME / ".local/state/hypr/matugen-scheme"
+ACCENTS = HOME / ".cache/desktop-theme/accents.json"
+
+# scheme -> (hue rotation in degrees, saturation multiplier)
+# Keep shifts well away from +-180 so semantic hues (the red danger
+# slot pinned at 5 degrees) stay recognisable after rotation.
+CHARACTER = {
+    "scheme-tonal-spot":  (0,   1.00),  # baseline
+    "scheme-vibrant":     (0,   1.30),  # same hues, noticeably punchier
+    "scheme-expressive":  (0,   1.00),  # already distinct at the source
+    "scheme-fidelity":    (0,   1.00),  # faithful to the source colours
+    "scheme-content":     (30,  1.00),  # source-identical to fidelity
+    "scheme-neutral":     (0,   0.70),  # muted by design, muted further
+    "scheme-monochrome":  (0,   1.00),  # greys: rotation is a no-op
+    "scheme-rainbow":     (55,  1.20),  # shares accent hues with tonal
+    "scheme-fruit-salad": (0,   1.00),  # already distinct at the source
+    "scheme-smart":       (-40, 1.05),  # renders identical to tonal-spot
+}
+
+HEX_RE = re.compile(r"#([0-9a-fA-F]{8}|[0-9a-fA-F]{6})(?![0-9a-fA-F])")
+
+
+def output_paths():
+    """Every template output_path from the matugen config."""
+    try:
+        text = CONFIG.read_text()
+    except OSError:
+        return []
+    return [
+        Path(p.replace("~", str(HOME)))
+        for p in re.findall(r'output_path\s*=\s*"([^"]+)"', text)
+    ]
+
+
+def accent_values():
+    """Wallpaper accent colours that must never be rewritten."""
+    try:
+        accents = json.loads(ACCENTS.read_text())["accents"]
+    except (OSError, KeyError, json.JSONDecodeError):
+        return set()
+    values = set()
+    for entry in accents.values():
+        color = str(entry.get("color", "")).strip().lstrip("#").lower()
+        if len(color) in (6, 8):
+            values.add(color)
+    return values
+
+
+def transform(hex_color, shift, mult):
+    raw = hex_color.lstrip("#")
+    alpha = raw[6:8] if len(raw) == 8 else ""
+    r, g, b = (int(raw[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    h, l, s = colorsys.rgb_to_hls(r, g, b)
+    h = ((h * 360 + shift) % 360) / 360
+    s = min(1.0, max(0.0, s * mult))
+    r, g, b = colorsys.hls_to_rgb(h, l, s)
+    out = "%02x%02x%02x" % (round(r * 255), round(g * 255), round(b * 255))
+    return "#" + out + alpha
+
+
+def main():
+    scheme = "scheme-tonal-spot"
+    try:
+        wanted = STATE.read_text().strip()
+        if wanted in CHARACTER:
+            scheme = wanted
+    except OSError:
+        pass
+
+    shift, mult = CHARACTER[scheme]
+    if shift == 0 and mult == 1.0:
+        return 0  # baseline schemes need no rewrite
+
+    accents = accent_values()
+    changed = 0
+    for path in output_paths():
+        try:
+            text = path.read_text()
+        except OSError:
+            continue
+
+        def rewrite(match):
+            color = match.group(1).lower()
+            if color in accents:
+                return match.group(0)
+            return transform("#" + color, shift, mult)
+
+        new_text, count = HEX_RE.subn(rewrite, text)
+        if count and new_text != text:
+            path.write_text(new_text)
+            changed += 1
+
+    print(
+        f"scheme-character: {scheme.replace('scheme-', '')} "
+        f"({shift:+d}deg, x{mult:.2f}) applied to {changed} files"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

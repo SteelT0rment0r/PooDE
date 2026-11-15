@@ -1,0 +1,13 @@
+#!/usr/bin/env fish
+
+# Record every clipboard change into cliphist's history database, which
+# rofi/scripts/rofi_clipboard then lists.
+#
+# The stdout redirect is load-bearing: wl-paste infers the MIME types it
+# is willing to read from the filename of its stdout, and a regular file
+# (e.g. a *.log target) would restrict it to text and silently drop
+# image copies. /dev/null has no extension, so wl-paste accepts any
+# offered type. stderr is left alone so startup errors stay visible in
+# the Hyprland log.
+
+exec wl-paste --watch cliphist store >/dev/null

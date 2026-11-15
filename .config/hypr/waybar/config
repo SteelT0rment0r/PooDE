@@ -1,0 +1,53 @@
+// Waybar config file ---------------------------------------
+
+{
+    "include": "~/.config/waybar/modules",
+    "name": "main-bar",
+    "id": "main-bar",
+    "layer": "top",
+    //"mode": "dock",
+    "exclusive": true,
+    "passthrough": false,
+    "position": "top",
+    "height": 36,
+    "width": "",
+    "spacing": 6,
+    "margin": 6,
+    "margin-top": 17,
+    "margin-bottom": 0,
+    "margin-left": 15,
+    "margin-right": 15,
+    "fixed-center": true,
+    "reload_style_on_change": true,
+
+    "modules-left": ["group/left"],
+    "modules-center": ["group/clock"],
+    "modules-right": ["group/right"],
+
+    "group/left": {
+        "orientation": "horizontal",
+        "modules": [
+            "ext/workspaces",
+            "tray"
+        ]
+    },
+
+    "group/clock": {
+        "orientation": "horizontal",
+        "modules": [
+            "clock"
+        ]
+    },
+
+    "group/right": {
+        "orientation": "horizontal",
+        "modules": [
+            "pulseaudio/slider",
+            "pulseaudio",
+            "backlight",
+            "bluetooth",
+            "network",
+            "battery"
+        ]
+    }
+}

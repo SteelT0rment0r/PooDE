@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+# Rofi switcher for the Hyprland window layout (general:layout).
+# Selection writes ~/.local/state/hypr/layout and runs `hyprctl reload`;
+# hyprland.lua reads that file at config load (active_layout), so the
+# choice applies immediately and survives future config reloads. Picking
+# the layout that is already active is a no-op.
+#
+# The layout list must match the whitelist in hyprland.lua's
+# active_layout() and the layout blocks configured there.
+
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/hypr/layout"
+RASI="$HOME/.config/hypr/rofi/layout.rasi"
+
+prompt='Layout'
+
+# The four layouts hyprland.lua configures in general:layout.
+declare -a layouts=(
+    scrolling
+    dwindle
+    master
+    monocle
+)
+declare -a labels=(
+    "Scrolling"
+    "Dwindle"
+    "Master"
+    "Monocle"
+)
+
+# Live value wins over the state file: hyprctl reflects what is actually
+# running even if the file is stale or missing. If the live read fails,
+# fall back to the state file (what hyprland.lua applies on reload).
+current="$(hyprctl getoption general:layout -j 2>/dev/null | jq -r '.str // empty')"
+if [ -z "$current" ]; then
+    current="$(cat "$STATE" 2>/dev/null)"
+fi
+[ -z "$current" ] && current="scrolling"
+
+# A stale or hand-edited state file must never yield a row hyprland
+# would reject: fall back to the default instead.
+valid=""
+for layout in "${layouts[@]}"; do
+    [ "$current" = "$layout" ] && valid=1
+done
+[ -z "$valid" ] && current="scrolling"
+
+current_label=""
+selected_row=0
+declare -a rows=()
+for i in "${!layouts[@]}"; do
+    if [ "${layouts[$i]}" = "$current" ]; then
+        rows+=("●  ${labels[$i]}")
+        current_label="${labels[$i]}"
+        selected_row=$i
+    else
+        rows+=("○  ${labels[$i]}")
+    fi
+done
+
+choice=$(printf '%s\n' "${rows[@]}" |
+    rofi -dmenu \
+        -p "$prompt" \
+        -mesg "Current :: $current_label" \
+        -selected-row "$selected_row" \
+        -markup-rows \
+        -no-custom \
+        -format i \
+        -theme "$RASI")
+
+case "$choice" in
+    ''|*[!0-9]*) exit 0 ;;
+esac
+choice=$((choice))
+
+layout="${layouts[$choice]:-}"
+[ -z "$layout" ] && exit 0
+[ "$layout" = "$current" ] && exit 0
+
+mkdir -p "$(dirname "$STATE")"
+printf '%s\n' "$layout" > "$STATE"
+
+# hyprctl keyword is unavailable on this Hyprland build, and a reload
+# keeps the state file as the single source of truth anyway: the config
+# re-reads it through active_layout() and applies the new layout.
+exec hyprctl reload

@@ -1,0 +1,37 @@
+[config]
+
+# Optional Matugen application templates
+# Integrations for applications used by this desktop configuration
+
+[templates.gtk3]
+input_path = "~/.config/matugen/templates/gtk3-colors.css"
+output_path = "~/.config/gtk-3.0/gtk.css"
+
+# GTK 4 and GTK 3 read separate inputs: libadwaita 1.6+ recolours its widgets
+# from CSS custom properties (:root) that GTK 3 cannot parse, so the GTK 4
+# template leads with those and GTK 3 keeps the @define-color form it can read.
+[templates.gtk4]
+input_path = "~/.config/matugen/templates/gtk4-colors.css"
+output_path = "~/.config/gtk-4.0/gtk.css"
+
+[templates.steam]
+input_path = "~/.config/matugen/templates/steam.css"
+output_path = "~/.steam/steam/steamui/skins/Material-Theme/css/main/colors/matugen.css"
+
+[templates.cava]
+input_path = "~/.config/matugen/templates/cava.ini"
+output_path = "~/.config/cava/config"
+
+# clobbers it -- the same split kitty uses with current-theme.conf.
+[templates.fish]
+input_path = "~/.config/matugen/templates/colors.fish"
+output_path = "~/.config/fish/conf.d/poode-colors.fish"
+
+[templates.yazi]
+input_path = "~/.config/matugen/templates/yazi.toml"
+output_path = "~/.config/yazi/theme.toml"
+
+[templates.tmux]
+input_path = "~/.config/matugen/templates/tmux.conf"
+output_path = "~/.config/tmux/poode-colors.conf"
+

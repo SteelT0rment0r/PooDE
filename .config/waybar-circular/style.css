@@ -1,0 +1,320 @@
+@import "../../.cache/desktop-theme/colors-waybar.css";
+
+
+
+/* ---------- Fonts ---------- */
+
+* {
+    font-family: "Maple Mono NF";
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* ---------- Waybar ---------- */
+
+window#waybar {
+    background: transparent;
+    color: @foreground;
+    border: none;
+    box-shadow: none;
+}
+
+window#waybar > box {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+/* The containers stay transparent;
+   every module below draws its own circle. */
+
+.modules-left,
+.modules-center,
+.modules-right {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ---------- Shared circle base ----------
+   Every widget fills the 40px bar: with the border gone the boxes
+   themselves are sized to keep the previous footprint (36px box +
+   2px border each side = 40px). */
+
+#custom-arch,
+#workspaces,
+#clock,
+#custom-media,
+#volume,
+#backlight,
+#bluetooth,
+#network,
+#battery,
+#tray,
+#custom-power {
+    background: @bar-background-light;
+    color: @foreground;
+    border: none;
+    border-radius: 999px;
+    /* GTK clips box-shadow at the bar window edge, so the vertical
+       margin doubles as the shadow's room: 3px lets the blur fade out
+       instead of being cut off right under the circle. */
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5);
+    min-height: 36px;
+    margin: 3px 2px;
+    padding: 0;
+}
+
+/* Icon-only widgets get a fixed square box so they read as circles. */
+
+#custom-arch,
+#bluetooth,
+#network,
+#battery,
+#custom-power {
+    min-width: 40px;
+    font-size: 16px;
+}
+
+#custom-arch,
+#custom-power {
+    font-size: 18px;
+}
+
+/* GTK centres the glyph's advance box, but some Nerd Font icons
+   have asymmetric side bearings. Trim the right side so the
+   visible ink lands in the middle of the circle. */
+
+#custom-arch {
+    min-width: 31px;
+    padding-right: 5px;
+}
+
+#network {
+    min-width: 28px;
+    padding-right: 8px;
+}
+
+#battery {
+    min-width: 29px;
+    padding-right: 7px;
+}
+
+#custom-power {
+    min-width: 32px;
+    padding-right: 4px;
+}
+
+/* The battery level icons need the 7px trim above (their ink sits well
+   right of the advance), but the charging bolt and the plug do not:
+   with 7px they render ~3px left of the circle's centre. Trim only what
+   those two glyphs need and give the difference back to the content
+   width, so the circle stays 36px wide and the bar does not jump. */
+#battery.charging,
+#battery.plugged {
+    min-width: 34.5px;
+    padding-right: 1.5px;
+}
+
+/* ---------- Workspaces ---------- */
+
+#workspaces {
+    padding: 0 6px;
+}
+
+#workspaces button {
+    background: transparent;
+    background-image: none;
+    color: @foreground;
+    border: none;
+    box-shadow: none;
+    padding: 2px 7px;
+    margin: 2px 1px;
+    min-width: 18px;
+    min-height: 20px;
+    border-radius: 999px;
+}
+
+#workspaces button.active,
+#workspaces button.focused {
+    background: @blue;
+    background-image: linear-gradient(to right, #90B2CE, #8BAFCD, #86ADCD, #81AACC, #7CA8CB, #77A5CA, #72A3CA);
+    color: @on-gradient;
+    border: none;
+    padding: 2px 9px;
+    min-width: 24px;
+}
+
+#workspaces button:hover {
+    background: transparent;
+    background-image: none;
+    color: @blue;
+    border: none;
+}
+
+#workspaces button.urgent {
+    background: @red;
+    background-image: none;
+    color: @background;
+}
+
+/* ---------- Tray ---------- */
+
+#tray {
+    padding: 0 8px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
+
+/* ---------- Clock ---------- */
+
+#clock {
+    color: @foreground;
+    font-family: "Maple Mono NF";
+    font-weight: 900;
+    font-size: 15px;
+    padding: 0 14px;
+}
+
+/* ---------- Media ---------- */
+
+#custom-media {
+    padding: 2 12px;
+    font-size: 15px;
+}
+
+/* ---------- Volume: slider + text in one circle ---------- */
+
+#volume {
+    padding: 0 10px;
+}
+
+#volume #pulseaudio-slider,
+#volume #pulseaudio {
+    background: transparent;
+    background-image: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    min-height: 0;
+    color: @neon-green;
+}
+
+#volume #pulseaudio-slider {
+    min-width: 64px;
+    padding: 0 4px;
+}
+
+#volume #pulseaudio {
+    padding: 0 4px;
+}
+
+#volume #pulseaudio.muted {
+    color: @red;
+}
+
+#volume #pulseaudio-slider trough {
+    min-width: 60px;
+    min-height: 5px;
+    border-radius: 16px;
+    background: @bar-background-alt;
+    background-image: none;
+}
+
+#volume #pulseaudio-slider highlight {
+    min-height: 5px;
+    border-radius: 16px;
+    background: @blue;
+    background-image: linear-gradient(to right, #90B2CE, #8BAFCD, #86ADCD, #81AACC, #7CA8CB, #77A5CA, #72A3CA);
+}
+
+#volume #pulseaudio-slider slider {
+    min-width: 9px;
+    min-height: 9px;
+    margin: -2px;
+    border-radius: 16px;
+    background: @foreground;
+    background-color: @foreground;
+    background-image: none;
+    border: 0;
+    outline: 0;
+    box-shadow: none;
+    -gtk-icon-shadow: none;
+}
+
+/* ---------- Brightness ---------- */
+
+#backlight {
+    padding: 0 12px;
+}
+
+/* ---------- State colours ---------- */
+
+#bluetooth.disabled,
+#bluetooth.off {
+    color: @red;
+}
+
+#network.disconnected,
+#network.disabled {
+    color: @red;
+}
+
+#battery.critical:not(.charging) {
+    color: @red;
+}
+
+/* ---------- Neon widget text ----------
+   One vivid hue per module, defined in desktop-templates/waybar.css
+   from the same six-hue derivation as the kitty palette. These rules
+   are last so they win over the shared `color: @foreground` above;
+   the state colours still win over these because they match with an
+   extra class (`#bluetooth.off`, `#network.disconnected`, ...). */
+
+#custom-arch {
+    color: @neon-magenta;
+}
+
+#clock {
+    color: @neon-cyan;
+}
+
+#custom-media {
+    color: @neon-yellow;
+}
+
+#workspaces button {
+    color: @neon-blue;
+}
+
+#volume {
+    color: @neon-green;
+}
+
+#backlight {
+    color: @neon-blue;
+}
+
+#bluetooth {
+    color: @neon-magenta;
+}
+
+#network {
+    color: @neon-cyan;
+}
+
+#battery {
+    color: @neon-yellow;
+}
+
+#custom-power {
+    color: @neon-red;
+}

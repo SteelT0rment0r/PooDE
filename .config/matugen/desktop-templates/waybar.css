@@ -1,0 +1,74 @@
+/* Bar surfaces: the wallpaper's hue (the M3 background colour) pushed
+   down to a very low lightness, so every bar reads as a deep tint of
+   the wallpaper instead of neutral grey. In light mode the same roles
+   are pushed up to 96 (91 for alt) instead: a near-white surface that
+   still carries the wallpaper's hue.
+
+   The scheme's own saturation is kept rather than forced (an absolute
+   set_saturation would tint neutral schemes — whose hue is 0 — red,
+   so "monochrome" never stayed grey).
+
+   desktop-templates/rofi.rasi uses the same base expression but sits
+   two lightness points lower on purpose: measured side by side, an
+   equal value reads as a slightly lighter window next to the small
+   shadowed circles of the bar. Keep the offset in sync if these
+   numbers change (dark bar 6.5 / rofi 4.5, alt 11.0 / 9.0; light
+   bar 96 / rofi 94, alt 91 / 89). */
+@define-color background <* if {{ is_dark_mode }} *>{{colors.background.default.hex | set_lightness: 6.5}}<* else *>{{colors.background.default.hex | set_lightness: 96.0}}<* endif *>;
+/* Text on the wallpaper-gradient highlights (the active workspace
+   pill). update-rofi-gradients.py floors those gradients at lightness
+   62%, so this text must stay dark in both modes: a fixed low
+   lightness over the mode's background hue gives the dark end with
+   the wallpaper's tint. Replaces @background, which flips light in
+   light mode and would vanish on the gradient. */
+@define-color on-gradient {{colors.background.default.hex | set_lightness: 6.5}};
+@define-color foreground {{colors.on_surface.default.hex}};
+@define-color cursor {{accents.secondary.hex}};
+
+@define-color black {{colors.surface_container_lowest.default.hex}};
+@define-color red {{colors.secondary.default.hex | set_hue: 5.0}};
+@define-color green {{accents.secondary.hex}};
+@define-color yellow {{accents.secondary.hex}};
+@define-color blue {{accents.secondary.hex}};
+@define-color magenta {{accents.secondary.hex}};
+@define-color cyan {{colors.surface_container.default.hex}};
+@define-color white {{colors.on_surface.default.hex}};
+
+@define-color bright-black {{colors.surface_container_lowest.default.hex}};
+@define-color bright-red {{colors.secondary.default.hex | set_hue: 5.0}};
+@define-color bright-green {{colors.surface_container.default.hex}};
+@define-color bright-yellow {{accents.secondary.hex}};
+@define-color bright-blue {{accents.secondaryFixed.hex}};
+@define-color bright-magenta {{accents.secondary.hex}};
+@define-color bright-cyan {{accents.secondary.hex}};
+@define-color bright-white {{colors.on_surface.default.hex}};
+
+@define-color background-alt <* if {{ is_dark_mode }} *>{{colors.background.default.hex | set_lightness: 11.0}}<* else *>{{colors.background.default.hex | set_lightness: 91.0}}<* endif *>;
+@define-color selected {{accents.secondary.hex}};
+@define-color bar-background <* if {{ is_dark_mode }} *>{{colors.background.default.hex | set_lightness: 6.5}}<* else *>{{colors.background.default.hex | set_lightness: 96.0}}<* endif *>;
+@define-color bar-background-light <* if {{ is_dark_mode }} *>{{colors.background.default.hex | set_lightness: 6.5}}<* else *>{{colors.background.default.hex | set_lightness: 96.0}}<* endif *>;
+@define-color bar-background-alt <* if {{ is_dark_mode }} *>{{colors.background.default.hex | set_lightness: 6.5}}<* else *>{{colors.background.default.hex | set_lightness: 96.0}}<* endif *>;
+
+/* Neon widget text: six accent slots derived from the roles that
+   actually vary with matugen's scheme (primary/tertiary/secondary).
+   colours.error is deliberately avoided — it is the same #ffb4ab in
+   every scheme, which used to make two slots identical everywhere.
+
+   - set_hue pins the danger (red) and network (cyan) slots so their
+     meaning survives every scheme; on a saturated scheme the hue is
+     all that is pinned, saturation and lightness still flow through.
+   - set_lightness only (never set_saturation): an absolute saturation
+     would turn monochrome's grey (hue 0) into red.
+   - a mild relative saturate keeps the vivid schemes from screaming.
+   Waybar style.css assigns one hue per module.
+
+   In light mode the set_lightness step is dropped (the light-mode
+   roles already sit dark enough to read on a light bar); the inverted
+   green/yellow slots are forced down to 42 instead, because inverting
+   a dark role yields a light one. */
+@define-color neon-red <* if {{ is_dark_mode }} *>{{colors.secondary.default.hex | set_hue: 5.0 | set_lightness: 76.0 | saturate: -15.0, "hsl"}}<* else *>{{colors.secondary.default.hex | set_hue: 5.0 | saturate: -15.0, "hsl"}}<* endif *>;
+@define-color neon-green <* if {{ is_dark_mode }} *>{{colors.tertiary.default.hex | invert | set_lightness: 78.0 | saturate: -15.0, "hsl"}}<* else *>{{colors.tertiary.default.hex | invert | set_lightness: 42.0 | saturate: -15.0, "hsl"}}<* endif *>;
+@define-color neon-yellow <* if {{ is_dark_mode }} *>{{colors.primary.default.hex | invert | set_lightness: 80.0 | saturate: -15.0, "hsl"}}<* else *>{{colors.primary.default.hex | invert | set_lightness: 42.0 | saturate: -15.0, "hsl"}}<* endif *>;
+@define-color neon-blue <* if {{ is_dark_mode }} *>{{colors.primary.default.hex | set_lightness: 76.0 | saturate: -15.0, "hsl"}}<* else *>{{colors.primary.default.hex | saturate: -15.0, "hsl"}}<* endif *>;
+@define-color neon-magenta <* if {{ is_dark_mode }} *>{{colors.tertiary.default.hex | set_lightness: 80.0 | saturate: -15.0, "hsl"}}<* else *>{{colors.tertiary.default.hex | saturate: -15.0, "hsl"}}<* endif *>;
+@define-color neon-cyan <* if {{ is_dark_mode }} *>{{colors.secondary.default.hex | set_hue: 160.0 | set_lightness: 74.0 | saturate: -15.0, "hsl"}}<* else *>{{colors.secondary.default.hex | set_hue: 160.0 | saturate: -15.0, "hsl"}}<* endif *>;

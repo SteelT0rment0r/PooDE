@@ -1,0 +1,11 @@
+/* Copyright (C) 2020-2026 Aditya Shakya <adi1090x@gmail.com> */
+
+/* Text Font */
+
+* {
+    font: "Maple Mono NF 10";
+}
+
+* {
+    border-radius: 32px;
+}

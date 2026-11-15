@@ -1,0 +1,15 @@
+#!/bin/sh
+
+choice=$(printf '<span font_desc="Maple Mono NF 17">󰓅</span>\n<span font_desc="Maple Mono NF 17">⚖</span>\n<span font_desc="Maple Mono NF 17">󰌪</span>' | rofi -dmenu -markup-rows -markup-rows -p 'Power Profile')
+
+case "$choice" in
+    <span font_desc="Maple Mono NF 17">󰓅</span>)
+        powerprofilesctl set performance
+        ;;
+    <span font_desc="Maple Mono NF 17">⚖</span>)
+        powerprofilesctl set balanced
+        ;;
+    "<span font_desc="Maple Mono NF 17">󰌪</span>")
+        powerprofilesctl set power-saver
+        ;;
+esac

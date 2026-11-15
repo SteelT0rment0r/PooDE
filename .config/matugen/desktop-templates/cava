@@ -1,0 +1,15 @@
+[color]
+background = "default"
+foreground = "{{colors.on_surface.default.hex}}"
+
+gradient = 1
+gradient_color_1 = "{{accents.primary.hex}}"
+gradient_color_2 = "{{accents.secondary.hex}}"
+gradient_color_3 = "{{accents.tertiary.hex}}"
+
+horizontal_gradient = 1
+horizontal_gradient_color_1 = "{{accents.primary.hex}}"
+horizontal_gradient_color_2 = "{{accents.secondary.hex}}"
+horizontal_gradient_color_3 = "{{accents.tertiary.hex}}"
+horizontal_gradient_color_4 = "{{accents.secondary.hex}}"
+horizontal_gradient_color_5 = "{{accents.primary.hex}}"

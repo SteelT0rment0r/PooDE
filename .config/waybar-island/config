@@ -1,0 +1,165 @@
+{
+    "position": "top",
+    "name": "island-bar",
+    "layer": "top",
+    "height": 16,
+    "margin-top": 10,
+    "margin-bottom": 0,
+    "margin-left": 15,
+    "margin-right": 15,
+    "modules-left": ["custom/launcher", "hyprland/workspaces"],
+    "modules-center": ["cpu", "memory", "disk"],
+    "modules-right": ["tray", "pulseaudio/slider", "pulseaudio", "bluetooth", "network", "clock"],
+    // Modules configuration
+	"clock": {
+		"format": "{:%H:%M}",
+		"tooltip": "true",
+        	"tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        	"format-alt": " {:%d/%m}"
+	},
+	
+
+	"hyprland/workspaces": {
+        "active-only": false,
+        "all-outputs": true,
+		"format": "{icon}",
+		"format-icons": {
+//			"1": "一",
+//			"2": "二",
+//			"3": "三",
+//			"4": "四",
+//			"5": "五",
+			"urgent": "",
+			"active": "",
+			"default": "󰧞",
+    },
+    "persistent-workspaces": {
+        "*": [1, 2, 3, 4, 5, 6, 7, 8]
+    }
+    },
+
+
+
+	"battery": {
+        "states": {
+            "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format":"{icon}  {capacity}%",
+        "format-charging": "{capacity}% ",
+        "format-plugged": "{capacity}% ",
+        "format-alt": "{icon} {time}",
+        // "format-good": "", // An empty format will hide the module
+        // "format-full": "",
+        "format-icons": ["", "", "", "", ""],
+        "on-click": "~/.config/hypr/rofi/scripts/rofi_powerprofile"
+	},
+
+  "memory": {
+    "rotate": 0,
+    "format": "󰍛 {}%",
+    "format-alt": "󰍛 {used}/{total} GiB",
+    "interval": 5
+  },
+
+  "cpu": {
+    "rotate": 0,
+    "format": "󰻠 {usage}%",
+    "format-alt": "󰻠 {avg_frequency} GHz",
+    "interval": 5
+  },
+
+  "disk": {
+    "rotate": 0,
+    "format": "󰋊 {}%",
+    "format-alt": "󰋊 {used}/{total} GiB",
+    "interval": 5,
+    "path": "/"
+  },
+	
+	"network": {
+        	"format-wifi": "󰤨",
+        	"format-ethernet": "",
+        	"format-linked": "",
+        	"format-disconnected": "󰤭",
+        	"format-alt": " {ifname}: {ipaddr}/{cidr}",
+        "format-alt-click": "click-right",
+          "tooltip-format": "{essid}",
+          "on-click": "kitty -e nmtui"
+	},
+
+	"tray": {
+		"icon-size": 16,
+		"spacing": 5
+	},
+
+	"backlight": {
+        // "device": "acpi_video1",
+	"format": "{icon} {percent}%",
+        "format-icons": ["", "", "", "", "", "", "", "", ""],
+//	"on-scroll-up":,
+//	"on-scroll-down":,
+	},
+
+	"pulseaudio": {
+    "rotate": 0,
+		"format": "{icon} {volume}%",
+        	"format-muted": "󰝟",
+		"format-icons": {
+			"default": ["󰕿", "󰖀", "󰕾"]
+		},
+		"on-click": "pulsemixer --toggle-mute",
+    "scroll-step": 5.0,
+        "smooth-scrolling-threshold": 1,
+		"on-click-right": "pulsemixer --toggle-mute"
+  },
+  "custom/launcher": {
+    "format": "",
+    "on-click": "$HOME/.config/hypr/rofi/scripts/rofi_launcher",
+//    "on-click": "wofi --show drun -I -a -n -W 500 -H 376 -s ~/.config/wofi/themes/gruvbox.css",
+    "on-click-right": "$HOME/.config/hypr/rofi/scripts/rofi_runner"  
+//    "on-click-right": "wofi --show run -I -a -n -W 500 -H 376 -s ~/.config/wofi/themes/gruvbox.css"  
+  },
+
+  "custom/wf-recorder": {
+		"format": "{}",
+		"interval": "once",
+		"exec": "echo ''",
+		"tooltip": "false",
+		"exec-if": "pgrep 'wf-recorder'",
+		"on-click": "exec ./scripts/wlrecord.sh",
+		"signal": 8
+	},
+
+  "custom/hyprpicker": {
+    "format": "󰈋",
+    "on-click": "hyprpicker -a -f hex",
+    "on-click-right": "hyprpicker -a -f rgb"
+  },
+
+    "bluetooth": {
+        "format": "",
+        "format-on": "",
+        "format-off": "",
+        "format-disabled": "",
+        "format-connected": "",
+        "format-connected-battery": "",
+        "tooltip": false,
+        "tooltip-format": "{controller_alias}\t{controller_address}",
+        "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+        "on-click": "kitty -e bluetoothctl",
+        "on-click-right": "blueman-manager"
+    },
+
+    "pulseaudio/slider": {
+        "min": 0,
+        "max": 100,
+        "orientation": "horizontal",
+        "target": "sink",
+        "zero-on-mute": true,
+        "unmute-on-volume-change": true
+    },
+
+}

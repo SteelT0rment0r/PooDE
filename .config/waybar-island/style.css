@@ -1,0 +1,268 @@
+@import url("../../.cache/desktop-theme/colors-waybar.css");
+
+
+
+* {
+    border: none;
+    border-radius: 32px;
+    font-family: "Maple Mono NF";
+    font-size: 15px;
+    font-weight: 900;
+    font-style: normal;
+    min-height: 0;
+}
+
+window#waybar {
+    background: transparent;
+    border: none;
+    color: @foreground;
+}
+
+window#waybar > box {
+    background: @bar-background;
+    border: none;
+    border-radius: 24px;
+    /* Bottom margin gives the shadow room: GTK clips box-shadow at the
+       window edge, and the box used to fill the window exactly. */
+    margin-bottom: 6px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+#workspaces {
+    background: transparent;
+    margin: 5px;
+    padding: 0;
+    border-radius: 0;
+}
+
+#workspaces button {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 2px 4px;
+    margin: 0 2px;
+    border-radius: 999px;
+    color: @foreground;
+}
+
+#workspaces button.active,
+#workspaces button.focused {
+    background: @blue;
+    background-image: linear-gradient(to right, #90B2CE, #8BAFCD, #86ADCD, #81AACC, #7CA8CB, #77A5CA, #72A3CA);
+    color: @on-gradient;
+    border: none;
+    padding: 2px 9px;
+    min-width: 24px;
+}
+
+#workspaces button:hover {
+    background: @bar-background-alt;
+    color: @foreground;
+}
+
+#clock,
+#battery,
+#pulseaudio,
+#network,
+#custom-launcher {
+    background: transparent;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 8px;
+    color: @foreground;
+}
+
+#clock {
+    color: @bright-white;
+    background: @bar-background-alt;
+    border-radius: 24px 24px 24px 24px;
+    padding-left: 13px;
+    padding-right: 15px;
+    margin: 0 0 0 10px;
+}
+
+#battery {
+    color: @green;
+}
+
+#battery.charging {
+    color: @bright-green;
+}
+
+#battery.warning:not(.charging) {
+    background: @bar-background-alt;
+    color: @bright-yellow;
+}
+
+#battery.critical:not(.charging) {
+    background: @bar-background-alt;
+    color: @bright-red;
+}
+
+#network {
+    color: @foreground;
+    margin-right: 5px;
+}
+
+#network.disconnected {
+    color: @red;
+}
+
+#pulseaudio {
+    color: @foreground;
+    margin-left: 0;
+}
+
+#pulseaudio.muted {
+    background: transparent;
+    color: @foreground;
+    margin-left: 0;
+}
+
+#custom-launcher {
+    color: @magenta;
+    background: @bar-background-alt;
+    border-radius: 24px 24px 24px 24px;
+    margin: 0;
+    padding: 0 20px 0 13px;
+    font-size: 20px;
+}
+
+#custom-launcher:hover {
+    background: @bar-background-alt;
+    color: @foreground;
+}
+
+#tray {
+    background: @bar-background-alt;
+    margin: 5px;
+    border-radius: 16px;
+    padding: 0 5px;
+}
+
+#cpu,
+#memory,
+#disk {
+    background: @bar-background-alt;
+    color: @foreground;
+    border-radius: 16px;
+    margin: 5px;
+    padding: 0 10px;
+}
+
+#backlight,
+#custom-hyprpicker {
+    background: @bar-background-alt;
+    color: @blue;
+    border-radius: 8px;
+    margin: 5px;
+    padding: 0 10px;
+}
+
+#window {
+    background: @bar-background-alt;
+    color: @foreground;
+    padding: 0 15px;
+    border-radius: 16px;
+    margin: 5px 0;
+}
+
+#custom-wf-recorder {
+    padding: 0 20px;
+    color: @red;
+    background: @bar-background-alt;
+}
+
+
+/* Volume slider */
+#pulseaudio-slider {
+    background: transparent;
+    border: none;
+    padding: 5px 6px;
+    min-width: 70px;
+}
+
+#pulseaudio-slider trough {
+    min-width: 70px;
+    min-height: 5px;
+    border-radius: 14px;
+    background: #30343A;
+}
+
+#pulseaudio-slider highlight {
+    min-height: 5px;
+    border-radius: 14px;
+    background-image: linear-gradient(to right, #90B2CE, #8BAFCD, #86ADCD, #81AACC, #7CA8CB, #77A5CA, #72A3CA);
+}
+
+#pulseaudio-slider slider {
+    min-width: 9px;
+    min-height: 9px;
+    margin: -2px;
+    border-radius: 50%;
+    background: @foreground;
+}
+
+/* Bluetooth */
+#bluetooth {
+    background: transparent;
+    color: @foreground;
+    padding: 0 5px;
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+    color: @red;
+}
+
+/* ---------- Neon widget text ----------
+   One vivid hue per module, defined in desktop-templates/waybar.css
+   from the same six-hue derivation as the kitty palette. These rules
+   are last so they win over the shared `color: @foreground` above;
+   the state colours still win over these because they match with an
+   extra class (`#bluetooth.off`, `#network.disconnected`, ...). */
+
+#custom-launcher {
+    color: @neon-magenta;
+}
+
+#clock {
+    color: @neon-cyan;
+}
+
+#workspaces button {
+    color: @neon-blue;
+}
+
+#pulseaudio {
+    color: @neon-green;
+}
+
+#backlight {
+    color: @neon-blue;
+}
+
+#battery {
+    color: @neon-yellow;
+}
+
+#bluetooth {
+    color: @neon-magenta;
+}
+
+#network {
+    color: @neon-cyan;
+}
+
+#cpu {
+    color: @neon-red;
+}
+
+#memory {
+    color: @neon-magenta;
+}
+
+#disk {
+    color: @neon-blue;
+}
+

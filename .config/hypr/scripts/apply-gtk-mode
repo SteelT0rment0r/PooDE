@@ -1,0 +1,60 @@
+#!/usr/bin/env fish
+
+# Applies the colour mode to GTK: the theme name and dark preference in
+# both settings.ini files, the gsettings colour scheme that libadwaita
+# applications actually read, and the gtk-4.0 asset symlinks. Mode
+# comes from the same state file rofi_colormode (Mod+S) writes; an
+# absent file means dark.
+# Idempotent — matugen-wallpaper runs it on every wallpaper change.
+
+set mode dark
+set mode_state "$HOME/.local/state/hypr/color-mode"
+if test -f "$mode_state"
+    set wanted (string trim < "$mode_state")
+    if test -n "$wanted"
+        switch $wanted
+            case dark light
+                set mode $wanted
+        end
+    end
+end
+
+switch $mode
+    case light
+        set theme adw-gtk3
+        set prefer_dark 0
+    case '*'
+        set theme adw-gtk3-dark
+        set prefer_dark 1
+end
+
+# No xsettings daemon runs here, so settings.ini is the only place GTK3
+# apps read the theme from; sed rewrites just the two mode-owned keys.
+for ini in "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
+    test -f $ini; or continue
+    sed -i \
+        -e "s|^gtk-theme-name=.*|gtk-theme-name=$theme|" \
+        -e "s|^gtk-application-prefer-dark-theme=.*|gtk-application-prefer-dark-theme=$prefer_dark|" \
+        $ini
+end
+
+# libadwaita applications ignore settings.ini and follow the colour
+# scheme from gsettings instead; the xdg portal passes the same value on
+# to apps like Zen. Running libadwaita applications may restyle themselves a few seconds
+# after this write (verified), no restart needed for the mode itself.
+# gtk-theme is kept in sync so nwg-look shows the real state.
+gsettings set org.gnome.desktop.interface color-scheme "prefer-$mode" 2>/dev/null
+gsettings set org.gnome.desktop.interface gtk-theme "$theme" 2>/dev/null
+
+# gtk-4.0 symlinks GTK4 loads directly. gtk-dark.css always points at
+# the dark variant: GTK4 only loads it when an app forces dark, which
+# light mode's prefer-dark=0 keeps switched off. gtk.css is NOT a
+# symlink — it is the real user stylesheet (theme-independent, imports
+# matugen-gtk.css) and must never be overwritten here.
+set theme_dir "/usr/share/themes/$theme"
+if test -d "$theme_dir/gtk-4.0"
+    ln -sfn "$theme_dir/gtk-4.0/assets" "$HOME/.config/gtk-4.0/assets"
+    ln -sfn "/usr/share/themes/adw-gtk3-dark/gtk-4.0/gtk-dark.css" "$HOME/.config/gtk-4.0/gtk-dark.css"
+end
+
+echo "GTK theme: $theme"

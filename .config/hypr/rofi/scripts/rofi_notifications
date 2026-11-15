@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+
+# Notification center: dunst history in a matugen-themed rofi menu.
+# Enter copies the selected notification, the bottom rows clear the
+# history and pause/resume dunst. All colours are read at runtime from
+# the generated colors.rasi, so this follows the wallpaper theme.
+
+RASI="$HOME/.config/hypr/rofi/notifications.rasi"
+
+prompt='Notifications'
+
+# Plain texts (summary \x1f body), one line per displayed row. Written by
+# the row builder so the display index and the copy index cannot drift.
+texts_file="$(mktemp)"
+trap 'rm -f "$texts_file"' EXIT
+
+mapfile -t notif_rows < <(python3 - "$texts_file" <<'PY'
+import json, re, subprocess, sys, time
+from pathlib import Path
+
+texts_path = sys.argv[1]
+
+try:
+    import os
+    cache_home = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    colors = (cache_home / "desktop-theme/colors.rasi").read_text()
+except OSError:
+    colors = ""
+
+def col(name, fallback):
+    m = re.search(r"\b" + re.escape(name) + r":\s*(#\w+)", colors)
+    return m.group(1) if m else fallback
+
+neon_red   = col("neon-red",   "#fc9488")
+muted      = col("muted",      "#e6c193")
+foreground = col("foreground", "#e0e2e8")
+
+try:
+    raw = subprocess.run(["dunstctl", "history"],
+                         capture_output=True, text=True, timeout=5).stdout
+    data = json.loads(raw)
+except Exception:
+    data = None
+
+entries = []
+def walk(node):
+    if isinstance(node, dict):
+        if "summary" in node and "timestamp" in node:
+            entries.append(node)
+        else:
+            for v in node.values():
+                walk(v)
+    elif isinstance(node, list):
+        for v in node:
+            walk(v)
+
+if data is not None:
+    walk(data)
+
+def field(entry, key):
+    v = entry.get(key)
+    if isinstance(v, dict):
+        return str(v.get("data", ""))
+    return "" if v is None else str(v)
+
+def flat(s):
+    return " ".join(s.split())
+
+def esc(s):
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+now = time.clock_gettime(time.CLOCK_BOOTTIME)
+def age(ts):
+    secs = max(0.0, now - ts / 1e6)
+    if secs < 60:
+        return "now" if secs < 5 else "%ds" % secs
+    if secs < 3600:
+        return "%dm" % (secs // 60)
+    if secs < 86400:
+        return "%dh" % (secs // 3600)
+    return "%dd" % (secs // 86400)
+
+def num(entry, key):
+    v = entry.get(key)
+    if isinstance(v, dict):
+        v = v.get("data")
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+entries.sort(key=lambda e: num(e, "timestamp"), reverse=True)
+
+icons = {
+    "CRITICAL": ("󰅐", neon_red),
+    "LOW":      ("󰂚", muted),
+    "NORMAL":   ("󰂚", foreground),
+}
+
+rows, texts = [], []
+for e in entries:
+    urg = e.get("urgency") or "NORMAL"
+    if isinstance(urg, dict):
+        urg = urg.get("data", "NORMAL")
+    icon, color = icons.get(str(urg).upper(), icons["NORMAL"])
+
+    summary = flat(field(e, "summary")) or "(no title)"
+    body    = flat(field(e, "body"))
+    app     = flat(field(e, "appname")) or "unknown"
+    ts      = num(e, "timestamp")
+
+    row = ('<span font_desc="Maple Mono NF 15" foreground="%s">%s</span>  '
+           '<span foreground="%s"><b>%s</b></span>  '
+           '<span size="small" foreground="%s">%s · %s</span>'
+           % (color, icon, color, esc(summary), muted, esc(app), age(ts)))
+    if body:
+        row += "  <span>%s</span>" % esc(body)
+
+    rows.append(row)
+    texts.append("%s\x1f%s" % (summary, body))
+
+with open(texts_path, "w") as fh:
+    if texts:
+        fh.write("\n".join(texts) + "\n")
+
+# No rows at all (empty history): print nothing, otherwise mapfile would
+# read the trailing newline as one phantom empty row.
+if rows:
+    print("\n".join(rows))
+PY
+)
+
+count=$(dunstctl count history 2>/dev/null)
+count=${count:-0}
+if [ "$(dunstctl is-paused 2>/dev/null)" = "true" ]; then
+    paused=true
+    mesg="$count in history · notifications paused"
+    row_toggle='<span font_desc="Maple Mono NF 15">󰂚</span>  Resume notifications'
+else
+    paused=false
+    mesg="$count in history"
+    row_toggle='<span font_desc="Maple Mono NF 15">󰢲</span>  Pause notifications'
+fi
+
+row_clear='<span font_desc="Maple Mono NF 15">󰆴</span>  Clear history'
+
+mapfile -t texts < "$texts_file"
+
+# Bottom rows follow the notification rows, so their indices shift with
+# the history length.
+n=${#notif_rows[@]}
+clear_idx=$n
+toggle_idx=$((n + 1))
+
+choice=$(printf '%s\n' "${notif_rows[@]}" "$row_clear" "$row_toggle" |
+    rofi -dmenu \
+        -p "$prompt" \
+        -mesg "$mesg" \
+        -markup-rows \
+        -no-custom \
+        -format i \
+        -theme "$RASI")
+
+case "$choice" in
+    ''|*[!0-9]*) exit 0 ;;
+esac
+choice=$((choice))
+
+if [ "$choice" -lt "$n" ]; then
+    IFS=$'\x1f' read -r summary body <<< "${texts[$choice]}"
+    printf '%s\n%s\n' "$summary" "$body" | wl-copy
+    notify-send \
+        -h string:x-canonical-private-synchronous:sys-notify-clip \
+        -u low \
+        'Copied to clipboard.'
+elif [ "$choice" -eq "$clear_idx" ]; then
+    dunstctl history-clear
+elif [ "$choice" -eq "$toggle_idx" ]; then
+    if [ "$paused" = true ]; then
+        dunstctl set-paused false
+    else
+        dunstctl set-paused true
+    fi
+fi

@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+# Rofi switcher for the matugen colour-scheme preset (matugen's -t flag:
+# the Material You scheme variant applied to the current wallpaper).
+# Selection writes ~/.local/state/hypr/matugen-scheme and re-runs the
+# wallpaper pipeline, which reads that file and passes -t to matugen, so
+# the choice also survives later wallpaper changes. Picking the preset
+# that is already active is a no-op.
+
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/hypr/matugen-scheme"
+RASI="$HOME/.config/hypr/rofi/schemetype.rasi"
+PIPELINE="$HOME/.config/hypr/scripts/matugen-wallpaper"
+
+prompt='Colour scheme'
+
+# Must match the values matugen accepts for -t (`matugen --help`).
+declare -a presets=(
+    scheme-tonal-spot
+    scheme-vibrant
+    scheme-expressive
+    scheme-fidelity
+    scheme-content
+    scheme-neutral
+    scheme-monochrome
+    scheme-rainbow
+    scheme-fruit-salad
+    scheme-smart
+)
+declare -a labels=(
+    "Tonal spot"
+    "Vibrant"
+    "Expressive"
+    "Fidelity"
+    "Content"
+    "Neutral"
+    "Monochrome"
+    "Rainbow"
+    "Fruit salad"
+    "Smart"
+)
+
+current="scheme-tonal-spot"
+if [ -f "$STATE" ]; then
+    read -r current < "$STATE" || true
+fi
+
+# A stale or hand-edited state file must never yield a row matugen would
+# reject: fall back to the default instead of passing garbage downstream.
+valid=""
+for preset in "${presets[@]}"; do
+    [ "$current" = "$preset" ] && valid=1
+done
+[ -z "$valid" ] && current="scheme-tonal-spot"
+
+current_label=""
+current_row=0
+declare -a rows=()
+for i in "${!presets[@]}"; do
+    if [ "${presets[$i]}" = "$current" ]; then
+        rows+=("●  ${labels[$i]}")
+        current_label="${labels[$i]}"
+        current_row="$i"
+    else
+        rows+=("○  ${labels[$i]}")
+    fi
+done
+
+choice=$(printf '%s\n' "${rows[@]}" |
+    rofi -dmenu \
+        -p "$prompt" \
+        -mesg "Current :: $current_label" \
+        -selected-row "$current_row" \
+        -markup-rows \
+        -no-custom \
+        -format i \
+        -theme "$RASI")
+
+case "$choice" in
+    ''|*[!0-9]*) exit 0 ;;
+esac
+choice=$((choice))
+
+preset="${presets[$choice]:-}"
+[ -z "$preset" ] && exit 0
+[ "$preset" = "$current" ] && exit 0
+
+mkdir -p "$(dirname "$STATE")"
+printf '%s\n' "$preset" > "$STATE"
+
+# Run the pipeline directly instead of touching the wallpaper state file:
+# that would wake wallpaper-watcher as well and replay the whole reload
+# twice. matugen-wallpaper takes its own flock if one is already held.
+exec "$PIPELINE"

@@ -1,0 +1,54 @@
+#!/usr/bin/env fish
+
+set wallpaper "$argv[1]"
+
+if test -z "$wallpaper"; or not test -f "$wallpaper"
+    echo "Accent extraction: invalid wallpaper"
+    exit 1
+end
+
+# Quantise the wallpaper and keep the sixteen most common colours.
+# `-alpha off` matters: PNG wallpapers with a transparency channel report
+# colours as #RRGGBBAA, which used to be filtered out entirely and left the
+# palette empty.
+set histogram (magick "$wallpaper" -alpha off -resize 256x256 -colors 16 \
+    -format %c histogram:info:- 2>/dev/null | sort -nr)
+
+# Pick three well-separated, visible colours instead of the three most
+# frequent, which are usually near-identical background shades.
+set palette (printf '%s\n' $histogram | python3 "$HOME/.config/hypr/scripts/extract_helper.py" select)
+
+if test (count $palette) -lt 3
+    set palette "#213466" "#2B4B65" "#4A6B8A"
+end
+
+set primary $palette[1]
+set secondary $palette[2]
+set muted $palette[3]
+
+jq -n \
+    --arg p "$primary" \
+    --arg s "$secondary" \
+    --arg m "$muted" \
+    '{
+        "accents": {
+            "primary": {"color": $p},
+            "secondary": {"color": $s},
+            "tertiary": {"color": $m},
+            "primaryContainer": {"color": $p},
+            "secondaryContainer": {"color": $s},
+            "tertiaryContainer": {"color": $m},
+            "primaryFixed": {"color": $p},
+            "secondaryFixed": {"color": $s},
+            "tertiaryFixed": {"color": $m},
+            "primaryFixedDim": {"color": $p},
+            "secondaryFixedDim": {"color": $s},
+            "tertiaryFixedDim": {"color": $m},
+            "muted": {"color": $m}
+        }
+    }' > "$HOME/.cache/desktop-theme/accents.json"
+
+echo "Extracted wallpaper accents:"
+echo "Primary:   $primary"
+echo "Secondary: $secondary"
+echo "Muted:     $muted"

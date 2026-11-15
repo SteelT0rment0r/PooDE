@@ -1,0 +1,45 @@
+#!/usr/bin/env fish
+
+# Sets the window border colours after a wallpaper change.
+# Must match hyprland.lua exactly: active = full @neon-blue from the
+# generated waybar css, inactive = the same neon pushed 0.55 toward the
+# theme background. Both read colors-waybar.css -- accents.json is not
+# usable because it stores colours without a leading '#'.
+
+set colors_css "$HOME/.cache/desktop-theme/colors-waybar.css"
+set colors_file "$HOME/.cache/desktop-theme/colors.json"
+
+if not test -f "$colors_css"; or not test -f "$colors_file"
+    exit 0
+end
+
+set borders (python3 -c '
+import json, re, sys
+
+def rgb(value):
+    value = value.lstrip("#")
+    return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))
+
+css = open(sys.argv[1]).read()
+colors = json.load(open(sys.argv[2]))
+
+# Same key/pattern as css_hex() in hyprland.lua.
+m = re.search(r"@define-color\s+neon-blue\s+(#[0-9a-fA-F]{6})", css)
+accent = rgb(m.group(1)) if m else (0x88, 0xc5, 0xfc)
+background = rgb(colors.get("background", "#101010"))
+
+blend = 0.55
+inactive = tuple(
+    round(accent[i] + (background[i] - accent[i]) * blend) for i in range(3)
+)
+
+for color in (accent, inactive):
+    print("rgba(%02x%02x%02xff)" % color)
+' "$colors_css" "$colors_file")
+
+set active $borders[1]
+set inactive $borders[2]
+
+set lua_cmd "hl.config({ general = { col = { active_border = '$active', inactive_border = '$inactive' } } })"
+
+hyprctl eval "$lua_cmd"

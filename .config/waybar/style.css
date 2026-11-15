@@ -1,0 +1,292 @@
+@import "../../.cache/desktop-theme/colors-waybar.css";
+
+
+
+/* ---------- Fonts ---------- */
+
+* {
+    font-family: "Maple Mono NF";
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* ---------- Waybar ---------- */
+
+window#waybar {
+    background: transparent;
+    color: @foreground;
+    border: none;
+    box-shadow: none;
+}
+
+window#waybar > box {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+/* ---------- Three floating pills ---------- */
+
+.modules-left,
+.modules-center,
+.modules-right {
+    background: @bar-background;
+    color: @foreground;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5);
+    padding: 0 6px;
+    margin: 2px 10px;
+}
+
+/* ---------- Workspaces ---------- */
+
+#workspaces {
+    background: transparent;
+    padding: 0;
+}
+
+#workspaces button {
+    background: transparent;
+    background-image: none;
+    color: @foreground;
+    border: none;
+    box-shadow: none;
+    padding: 2px 8px;
+    margin: 0 2px;
+    border-radius: 999px;
+}
+
+#workspaces button.active,
+#workspaces button.focused {
+    background: @blue;
+    background-image: linear-gradient(to right, #90B2CE, #8BAFCD, #86ADCD, #81AACC, #7CA8CB, #77A5CA, #72A3CA);
+    color: @on-gradient;
+    border: none;
+    border-radius: 999px;
+    margin-top: 7px;
+    margin-bottom: 7px;
+    padding: 0px 18px;
+    min-height: 0;
+    min-width: 0;
+    box-shadow: none;
+}
+
+#workspaces button:hover {
+    background: transparent;
+    color: @blue;
+    border: none;
+}
+
+#workspaces button.urgent {
+    background: @red;
+    color: @background;
+}
+
+/* ---------- Tray ---------- */
+
+#tray {
+    background: transparent;
+    padding: 0 6px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
+
+/* ---------- Clock ---------- */
+
+#clock {
+    background: transparent;
+    color: @foreground;
+    padding: 4 10px;
+    font-family: Maple Mono NF;
+    font-weight: 900;
+    font-size: 17px;
+}
+
+/* ---------- Volume ---------- */
+
+#pulseaudio {
+    background: transparent;
+    color: @foreground;
+    padding: 0 4px;
+}
+
+#pulseaudio.muted {
+    color: @red;
+}
+
+/* ---------- Volume slider ---------- */
+
+#pulseaudio-slider {
+    background: transparent;
+    border: none;
+    padding: 6 6px;
+    min-width: 70px;
+}
+
+#pulseaudio-slider trough {
+    min-width: 70px;
+    min-height: 5px;
+    border-radius: 14px;
+    background: @bar-background;
+}
+
+#pulseaudio-slider highlight {
+    min-height: 5px;
+    border-radius: 14px;
+    background: @blue;
+    background-image: linear-gradient(to right, #90B2CE, #8BAFCD, #86ADCD, #81AACC, #7CA8CB, #77A5CA, #72A3CA);
+}
+
+#pulseaudio-slider slider {
+    min-width: 9px;
+    min-height: 9px;
+    margin: -2px;
+    border-radius: 50%;
+    background: @foreground;
+    background-color: @foreground;
+    background-image: none;
+    border: 0;
+    outline: 0;
+    box-shadow: none;
+    -gtk-icon-shadow: none;
+}
+
+/* ---------- Brightness ---------- */
+
+#backlight {
+    background: transparent;
+    color: @foreground;
+    padding: 0 6px;
+}
+
+/* ---------- Bluetooth ---------- */
+
+#bluetooth {
+    background: transparent;
+    color: @foreground;
+    padding: 0 1px;
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+    color: @red;
+}
+
+/* ---------- Network ---------- */
+
+#network {
+    background: transparent;
+    color: @foreground;
+    padding: 0 8px;
+}
+
+#network.disconnected,
+#network.disabled {
+    color: @red;
+}
+
+/* ---------- Battery ---------- */
+
+#battery {
+    background: transparent;
+    color: @foreground;
+    padding: 0 8px;
+}
+
+#battery.critical:not(.charging) {
+    color: @red;
+}
+
+/* ---------- Common ---------- */
+
+#mode,
+#window,
+#mpd,
+#custom-themes {
+    background: transparent;
+    color: @foreground;
+}
+
+#custom-arch, #custom-power {
+    padding: 0 10px;
+}
+
+#custom-arch,
+#custom-power {
+    font-family: "Maple Mono NF";
+    font-size: 16px;
+    padding: 0 8px;
+}
+
+/* Dynamic slider override */
+#pulseaudio-slider trough highlight {
+    background: @blue;
+    background-color: @blue;
+    background-image: linear-gradient(to right, #90B2CE, #8BAFCD, #86ADCD, #81AACC, #7CA8CB, #77A5CA, #72A3CA);
+    border: none;
+    box-shadow: none;
+}
+#pulseaudio-slider slider,
+#pulseaudio-slider slider:hover,
+#pulseaudio-slider slider:active,
+#pulseaudio-slider slider:focus {
+    background: @foreground;
+    background-color: @foreground;
+    background-image: none;
+    border: none;
+    border-color: transparent;
+    outline: none;
+    outline-color: transparent;
+    box-shadow: none;
+}
+
+/* ---------- Neon widget text ----------
+   One vivid hue per module, defined in desktop-templates/waybar.css
+   from the same six-hue derivation as the kitty palette. These rules
+   are last so they win over the shared `color: @foreground` above;
+   the state colours still win over these because they match with an
+   extra class (`#bluetooth.off`, `#network.disconnected`, ...). */
+
+#custom-arch {
+    color: @neon-magenta;
+}
+
+#clock {
+    color: @neon-cyan;
+}
+
+#workspaces button {
+    color: @neon-blue;
+}
+
+#pulseaudio {
+    color: @neon-green;
+}
+
+#backlight {
+    color: @neon-blue;
+}
+
+#bluetooth {
+    color: @neon-magenta;
+}
+
+#network {
+    color: @neon-cyan;
+}
+
+#battery {
+    color: @neon-yellow;
+}
+
+#custom-power {
+    color: @neon-red;
+}
+

@@ -1,0 +1,27 @@
+// Waybar config file ---------------------------------------
+
+{
+    "include": "~/.config/waybar/modules",
+    "name": "main-bar", 			// Waybar name
+    "id": "main-bar", 				// Waybar id
+    "layer": "top", 				// Waybar at top layer
+    //"mode": "dock", 				// Display mode (dock|hide|invisible|overlay)
+    "exclusive": true, 				// Request an exclusive zone from the compositor
+    "passthrough": false, 			// Pass any pointer events to the window under the bar
+    "position": "top",  			// Waybar position (top|bottom|left|right)
+    "height": 28, 					// Waybar height (to be removed for auto height)
+    "width": "", 					// Waybar width (empty for auto width)
+    "spacing": 6, 					// Gaps between modules
+    "margin": 0, 					// Space around the bar
+    "margin-top": 10, 				// Space above the bar
+    "margin-bottom": 2, 			// Space below the bar
+    "margin-left":120, 				// Space to the left of the bar
+    "margin-right": 120, 				// Space to the right of the bar
+    "fixed-center": true, 			// Center modules position
+    "reload_style_on_change": true, // Reload changes
+
+    // Type-2
+    "modules-left": ["ext/workspaces", "tray" ],
+	"modules-center": ["clock"],
+    "modules-right": ["pulseaudio/slider", "pulseaudio", "backlight", "bluetooth", "network", "battery"],
+}

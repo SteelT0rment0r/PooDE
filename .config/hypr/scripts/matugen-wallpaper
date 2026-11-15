@@ -1,0 +1,133 @@
+#!/usr/bin/env fish
+
+set state_dir "$HOME/.local/state/hypr"
+set state "$state_dir/wallpaper"
+
+# Serialize runs: the wallpaper watcher and manual triggers must not apply
+# themes at the same time (concurrent Waybar restarts used to leave two
+# bars running).
+if not set -q MATUGEN_LOCKED
+    mkdir -p "$state_dir"
+    # -o: flock holds the lock itself and the script never inherits the
+    # descriptor, so long-lived children (waybar) cannot keep the lock.
+    exec flock -w 120 -o "$state_dir/matugen.lock" env MATUGEN_LOCKED=1 fish (status filename) $argv
+end
+
+if not test -f "$state"
+    exit 0
+end
+
+set wallpaper (string match -r '^wallpaper = (.+)$' < "$state")[2]
+
+if test -z "$wallpaper"; or not test -f "$wallpaper"
+    echo "Matugen: wallpaper not found: $wallpaper"
+    exit 1
+end
+
+echo "Wallpaper: $wallpaper"
+
+# Single code path for setting the image: login, rofi selection and the
+# watcher all land here via the state file, so the first login also gets
+# a wallpaper instead of a black background.
+awww img "$wallpaper" --resize crop --transition-type wipe --transition-duration 0.15 >/dev/null
+
+# Colour-scheme preset picked by rofi/scripts/rofi_schemetype (Mod+T).
+# Unknown values fall back to matugen's default so a stale state file can
+# never abort the whole wallpaper pipeline.
+set scheme scheme-tonal-spot
+set scheme_state "$state_dir/matugen-scheme"
+if test -f "$scheme_state"
+    set wanted (string trim < "$scheme_state")
+    if test -n "$wanted"
+        switch $wanted
+            case scheme-content scheme-expressive scheme-fidelity scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow scheme-tonal-spot scheme-vibrant scheme-smart
+                set scheme $wanted
+        end
+    end
+end
+echo "Scheme: $scheme"
+
+# Colour mode (matugen's -m flag: dark or light), picked by
+# rofi/scripts/rofi_colormode (Mod+S). Unknown values fall back to
+# matugen's default so a stale state file can never abort the pipeline.
+set mode dark
+set mode_state "$state_dir/color-mode"
+if test -f "$mode_state"
+    set wanted (string trim < "$mode_state")
+    if test -n "$wanted"
+        switch $wanted
+            case dark light
+                set mode $wanted
+        end
+    end
+end
+echo "Mode: $mode"
+
+# Extract actual wallpaper colours.
+"$HOME/.config/hypr/scripts/extract-wallpaper-accents" "$wallpaper"
+or exit 1
+
+# Generate surfaces and component colours using extracted accents.
+matugen image "$wallpaper" -t "$scheme" -m "$mode" --source-color-index 0 -c "$HOME/.config/matugen/config.toml"
+or exit 1
+
+# Apply brightness adjustment if needed, using Python helper
+python3 $HOME/.config/hypr/scripts/extract_helper.py write "$(jq -r '.accents.primary.color' $HOME/.cache/desktop-theme/accents.json)" "$(jq -r '.accents.secondary.color' $HOME/.cache/desktop-theme/accents.json)" "$(jq -r '.accents.tertiary.color' $HOME/.cache/desktop-theme/accents.json)"
+
+# Generate surfaces and component colours using extracted accents.
+matugen image "$wallpaper" -t "$scheme" -m "$mode" --source-color-index 0 -c "$HOME/.config/matugen/config.toml"
+or exit 1
+
+# Per-scheme hue/saturation character: matugen renders some presets
+# (smart == tonal-spot) identically, so the generated palettes get a
+# preset-specific shift here. Must run after the final render above
+# (pristine input, no double rotation) and before apply-dunst-colors /
+# the border and gradient steps so everything downstream sees the
+# same shifted palette.
+"$HOME/.config/hypr/scripts/apply-scheme-character"
+or exit 1
+
+# Dunst colours: dunst cannot include a shared palette, so only the colour
+# lines of dunstrc are patched (the focus-mode toggle owns the other lines
+# this script must not clobber). Runs after the final matugen render above.
+"$HOME/.config/hypr/scripts/apply-dunst-colors"
+
+# GTK theme name, dark preference and the gtk-4.0 stylesheet symlinks
+# follow the colour mode (adw-gtk3 vs adw-gtk3-dark). Idempotent, so
+# running it on every wallpaper change is harmless.
+"$HOME/.config/hypr/scripts/apply-gtk-mode"
+
+# Reload the default Yazi instance if it is running.
+if pgrep -x yazi >/dev/null
+    ya emit-to 0 app:theme >/dev/null 2>&1
+end
+
+if pgrep -x cava >/dev/null
+    pkill -USR2 -x cava
+end
+if pgrep -x rmpc >/dev/null
+    rmpc remote set theme "$HOME/.config/rmpc/themes/matugen.ron"
+end
+source "$HOME/.cache/desktop-theme/fish-colors.fish"
+
+# Update Rofi and Waybar gradients.
+python3 "$HOME/.config/hypr/scripts/update-rofi-gradients.py"
+or exit 1
+
+# Apply Hyprland border colours.
+"$HOME/.config/hypr/scripts/pywal-borders"
+
+# Reapply Hyprland border colours after the theme update
+"$HOME/.config/hypr/scripts/pywal-borders"
+# Reload Kitty palette and configuration in all instances.
+set kitty_socket (ls /tmp/kitty-* 2>/dev/null | head -n 1)
+if test -n "$kitty_socket"; and test -S "$kitty_socket"
+    env KITTY_LISTEN_ON=unix:"$kitty_socket" kitty @ set-colors --all --configured "$HOME/.cache/desktop-theme/colors-kitty.conf"
+    env KITTY_LISTEN_ON=unix:"$kitty_socket" kitty @ load-config
+end
+
+# Restart the selected Waybar configuration (single shared code path so
+# startup, toggling and wallpaper switches all resolve the mode the same way).
+"$HOME/.config/hypr/scripts/toggle-waybar.sh" restart
+
+echo "Wallpaper theme updated successfully."
