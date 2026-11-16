@@ -162,7 +162,7 @@
 // waybar-tray
     
     "custom/arch": {
-        "format": "",
+        "format": "",
         "tooltip": false,
         "on-click": "rofi -show drun -theme ~/.config/hypr/rofi/launcher.rasi"
     },
